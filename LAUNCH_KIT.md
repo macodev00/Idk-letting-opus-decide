@@ -10,6 +10,9 @@ Ground rules that protect the project (and a later Codex for Open Source applica
   information and it looks at *real usage*: dependents, downloads, active maintenance.
 - Post from your own account, disclose that you built it, and stay in the comments to answer questions.
   Replying to feedback quickly matters more than anything else on launch day.
+- Be upfront that it was built with an AI coding agent if anyone asks (or say so in the post). Communities
+  like HN react badly when that comes out later, and it's a fine story on its own: you directed it, tested it
+  on 16 real repositories, and you maintain it.
 
 ---
 
