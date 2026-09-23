@@ -95,6 +95,24 @@ test('generates python CI and dependabot config', () => {
   assert.match(fs.readFileSync(path.join(dir, '.gitignore'), 'utf8'), /__pycache__/);
 });
 
+test('generates CI for Java, Ruby, PHP and .NET projects', () => {
+  const cases = [
+    [{ 'pom.xml': '<project/>' }, [/setup-java@v6/, /cache: maven/, /mvn -B verify/]],
+    [{ 'build.gradle': '' }, [/setup-gradle@v6/, /\.\/gradlew build/]],
+    [{ Gemfile: '', 'spec/a_spec.rb': '' }, [/setup-ruby@v1/, /bundle exec rspec/]],
+    [{ Gemfile: '' }, [/bundle exec rake$/m]],
+    [{ 'composer.json': { scripts: { test: 'phpunit' } } }, [/setup-php@v2/, /composer test/]],
+    [{ 'composer.json': {} }, [/vendor\/bin\/phpunit/]],
+    [{ 'App.csproj': '<Project/>' }, [/setup-dotnet@v6/, /dotnet test --no-build/]],
+  ];
+  for (const [files, patterns] of cases) {
+    const dir = makeRepo(files);
+    audit(dir, { fix: true, only: ['ci'] });
+    const wf = fs.readFileSync(path.join(dir, '.github/workflows/ci.yml'), 'utf8');
+    for (const p of patterns) assert.match(wf, p, `${Object.keys(files)[0]}: ${p}`);
+  }
+});
+
 test('license-consistency catches mismatches', () => {
   const dir = makeRepo({ LICENSE: renderLicense('MIT'), 'package.json': { name: 'x', license: 'Apache-2.0' } });
   const r = result(audit(dir), 'license-consistency');

@@ -343,6 +343,56 @@ ${[c.lint, c.build, c.test].filter(Boolean).map((s) => `      - run: ${s}`).join
       - run: cargo clippy -- -D warnings
       - run: cargo test
 `,
+  java: (ctx) => {
+    const distribution = `      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: \${{ matrix.java }}
+`;
+    const build = ctx.find('pom.xml')
+      ? `${distribution.replace(/\n$/, '')}\n          cache: maven\n      - run: mvn -B verify\n`
+      : `${distribution}      - uses: gradle/actions/setup-gradle@v6\n      - run: ./gradlew build\n`;
+    return `    strategy:
+      matrix:
+        java: [17, 21, 25]
+    steps:
+      - uses: actions/checkout@v7
+${build}`;
+  },
+  ruby: (ctx) => `    strategy:
+      matrix:
+        ruby: ['3.3', '3.4']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: \${{ matrix.ruby }}
+          bundler-cache: true
+      - run: ${ctx.match(/^spec\//).length ? 'bundle exec rspec' : 'bundle exec rake'}
+`,
+  php: (ctx) => {
+    const composer = ctx.readJson('composer.json') || {};
+    return `    strategy:
+      matrix:
+        php: ['8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: \${{ matrix.php }}
+      - run: composer install --no-interaction --prefer-dist
+      - run: ${composer.scripts?.test ? 'composer test' : 'vendor/bin/phpunit'}
+`;
+  },
+  dotnet: () => `    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore
+      - run: dotnet build --no-restore
+      - run: dotnet test --no-build
+`,
 };
 
 export function ciWorkflow(ctx) {
