@@ -81,6 +81,7 @@ function runAll(ctx, selected) {
  */
 export function audit(root = '.', options = {}) {
   const config = { ...loadConfig(path.resolve(root)), ...(options.config || {}) };
+  if (options.history) config.secrets = { ...config.secrets, history: true };
   const selected = selectChecks({
     only: options.only?.length ? options.only : config.only || [],
     skip: [...(config.skip || []), ...(options.skip || [])],

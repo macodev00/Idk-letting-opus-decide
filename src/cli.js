@@ -20,6 +20,7 @@ Options
                         One of: ${SUPPORTED_LICENSES.join(', ')}
   --holder <name>       Copyright holder for the license (default: package author / git user.name)
   --contact <email>     Contact for SECURITY.md and CODE_OF_CONDUCT.md
+  --history             Also scan every commit in git history for secrets
   --format <fmt>        text (default), json, markdown, sarif
   -o, --output <file>   Write the report to a file instead of stdout
   --min-score <n>       Exit with code 1 if the score is below n (0-100)
@@ -36,6 +37,7 @@ Options
 Examples
   npx repo-ready                    Audit the current directory
   npx repo-ready --fix              Audit and generate missing files
+  npx repo-ready --history          Also check past commits before going public
   npx repo-ready --min-score 80     Fail CI below 80/100
   npx repo-ready --format markdown  Report for a PR comment or job summary
 
@@ -45,7 +47,7 @@ Configuration
 `;
 
 const VALUE_FLAGS = new Set(['--license', '--holder', '--contact', '--format', '--output', '-o', '--min-score', '--only', '--skip']);
-const BOOL_FLAGS = new Set(['--fix', '--dry-run', '--strict', '--badge', '--list-checks', '--verbose', '-v', '--no-color', '--help', '-h', '--version']);
+const BOOL_FLAGS = new Set(['--fix', '--history', '--dry-run', '--strict', '--badge', '--list-checks', '--verbose', '-v', '--no-color', '--help', '-h', '--version']);
 
 export function parseArgs(argv) {
   const args = { _: [] };
@@ -106,6 +108,7 @@ export async function main(argv = process.argv.slice(2), io = { stdout: process.
   try {
     report = audit(args._[0] || '.', {
       fix: !!args.fix,
+      history: !!args.history,
       dryRun: !!args['dry-run'],
       license: args.license,
       holder: args.holder,

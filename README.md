@@ -16,7 +16,7 @@
 
 - **One command, zero config, zero dependencies.** Runs anywhere Node 18+ runs.
 - **Fixes, not just complaints.** Creates LICENSE (10 licenses), CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, issue/PR templates, CI workflow, Dependabot, .gitignore, CHANGELOG and AGENTS.md. It never overwrites a file you already have.
-- **Catches the embarrassing stuff.** Leaked API keys (GitHub, AWS, OpenAI, Anthropic, Stripe, Slack, Google, npm, PyPI, …), committed `.env` files, broken README links, a license that disagrees with your `package.json`.
+- **Catches the embarrassing stuff.** Leaked API keys (GitHub, AWS, OpenAI, Anthropic, Stripe, Slack, Google, npm, PyPI, …) in your files *and your git history*, committed `.env` files, broken README links, a license that disagrees with your `package.json`.
 - **Language-aware.** Node (npm, pnpm, yarn, bun), Python, Go, Rust, Java, Ruby, PHP and .NET.
 - **Built for CI.** GitHub Action with job summaries, annotations and SARIF for code scanning; `--min-score` to gate pull requests.
 
@@ -44,6 +44,7 @@ repo-ready                    # audit the current directory
 repo-ready path/to/repo       # audit another directory
 repo-ready --fix              # generate missing files
 repo-ready --fix --dry-run    # preview what --fix would create
+repo-ready --history          # also scan every past commit for secrets
 repo-ready --fix --license Apache-2.0 --contact security@example.com
 repo-ready --min-score 80     # exit 1 if the score is below 80
 repo-ready --format markdown  # report for a PR comment or job summary
@@ -57,6 +58,7 @@ repo-ready --badge            # print a score badge for your README
 | `--license <id>` | License for `--fix`: `MIT` (default, or whatever `package.json` declares), `Apache-2.0`, `ISC`, `BSD-2-Clause`, `BSD-3-Clause`, `MPL-2.0`, `GPL-3.0`, `LGPL-3.0`, `AGPL-3.0`, `Unlicense`. |
 | `--holder <name>` | Copyright holder. Defaults to the `package.json` author, then `git config user.name`. |
 | `--contact <email>` | Contact address for SECURITY.md and CODE_OF_CONDUCT.md. On GitHub, SECURITY.md also links to private vulnerability reporting. |
+| `--history` | Also scan all commits on all branches for secrets. Run this before making a private repo public. |
 | `--format <fmt>` | `text` (default), `json`, `markdown` or `sarif`. |
 | `-o, --output <file>` | Write the report to a file. |
 | `--min-score <n>` | Exit with code 1 if the score is below `n`. |
@@ -87,7 +89,7 @@ jobs:
           min-score: 80
 ```
 
-The action writes a Markdown report to the job summary and annotates failures. Inputs: `path`, `min-score`, `strict`, `only`, `skip`, `fix`, `license`, `contact`, `summary`, `sarif-file`. Outputs: `score`, `grade`, `failed`, `fixed`, `badge-url`.
+The action writes a Markdown report to the job summary and annotates failures. Inputs: `path`, `min-score`, `strict`, `only`, `skip`, `history`, `fix`, `license`, `contact`, `summary`, `sarif-file`. Outputs: `score`, `grade`, `failed`, `fixed`, `badge-url`.
 
 <details>
 <summary>Show findings in the Security tab (SARIF)</summary>
@@ -154,6 +156,7 @@ jobs:
 | `changelog` | info | CHANGELOG/HISTORY/NEWS, or automated release notes (changesets, release-please, semantic-release, git-cliff). |
 | `gitignore` | warning | A .gitignore, and no committed `node_modules`, `__pycache__`, `.DS_Store`, etc. |
 | `secrets` | error | 18 kinds of credentials in tracked files, with redacted previews. Private keys only count when real key material follows the PEM header. |
+| `secrets-history` | error | Same scan over lines added in past commits, including secrets deleted later (opt-in with `--history`). |
 | `env-files` | error | No committed `.env` files containing credential-like values (`.env.example` is fine). |
 | `large-files` | info | No files over 5 MB outside Git LFS. |
 | `package-metadata` | warning | Description, repository, keywords and license in your package manifest. |
@@ -174,7 +177,9 @@ Optional. Put a `.repo-ready.json` in the repository root, or a `"repo-ready"` k
   "minScore": 80,
   "secrets": {
     "ignorePaths": ["^docs/examples/"],
-    "includeTests": false
+    "includeTests": false,
+    "history": true,
+    "historyMaxCommits": 10000
   }
 }
 ```

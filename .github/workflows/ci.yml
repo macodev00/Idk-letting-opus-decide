@@ -35,10 +35,13 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - id: repo-ready
         uses: ./
         with:
           min-score: 90
+          history: true
           sarif-file: repo-ready.sarif
       - run: echo "Score ${{ steps.repo-ready.outputs.score }} (${{ steps.repo-ready.outputs.grade }})"
       - uses: github/codeql-action/upload-sarif@v4

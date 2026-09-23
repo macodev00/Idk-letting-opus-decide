@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process';
+
 // A PEM header only counts when real base64 key material follows it, either on the next lines
 // or after an escaped "\n" on the same line. Headers in docs, regexes and error messages are ignored.
 function hasKeyMaterial(lines, i, offset) {
@@ -79,14 +81,19 @@ export function scanText(text, file = '') {
 
 export const TEST_PATH = /(^|\/)(tests?|__tests__|__fixtures__|spec|specs|fixtures?|testdata|test-data|__mocks__)\/|_test\.[a-z]+$|[._-](test|spec)\.[a-z]+$|(^|\/)test_[^/]+\.py$/i;
 
-export function scanSecrets(ctx) {
+function pathFilter(ctx) {
   const ignore = (ctx.config.secrets?.ignorePaths || []).map((p) => new RegExp(p));
   const includeTests = ctx.config.secrets?.includeTests === true;
+  return (file) => !BINARY_EXT.test(file) && !SKIP_FILE.test(file) && !ignore.some((re) => re.test(file))
+    && (includeTests || !TEST_PATH.test(file));
+}
+
+export function scanSecrets(ctx) {
+  const wanted = pathFilter(ctx);
   const findings = [];
   let scanned = 0;
   for (const file of ctx.files) {
-    if (BINARY_EXT.test(file) || SKIP_FILE.test(file) || ignore.some((re) => re.test(file))) continue;
-    if (!includeTests && TEST_PATH.test(file)) continue;
+    if (!wanted(file)) continue;
     if (ctx.size(file) > MAX_BYTES) continue;
     const text = ctx.read(file);
     if (text == null || text.includes('\u0000')) continue;
@@ -94,6 +101,69 @@ export function scanSecrets(ctx) {
     findings.push(...scanText(text, file));
   }
   ctx.state.secretsScanned = scanned;
+  return findings;
+}
+
+/**
+ * Scan lines added in past commits (all branches). Secrets that were committed and later deleted
+ * are still readable by anyone once the repository is public.
+ */
+export function scanHistory(ctx, { maxCommits = 10000 } = {}) {
+  const wanted = pathFilter(ctx);
+  let log;
+  try {
+    log = execFileSync('git', ['log', '--all', `--max-count=${maxCommits}`, '-p', '--no-color', '--no-ext-diff',
+      '--unified=0', '--diff-filter=AMR', '--format=%x00repo-ready-commit %H'], {
+      cwd: ctx.root, stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1024 * 1024 * 1024,
+    }).toString('utf8');
+  } catch (err) {
+    throw new Error(`git log failed: ${err.message.split('\n')[0]}`);
+  }
+
+  const findings = [];
+  const seen = new Set();
+  let commits = 0;
+  const flush = (commit, file, added) => {
+    if (!commit || !file || !added.length || !wanted(file)) return;
+    for (const f of scanText(added.join('\n'), file)) {
+      const key = `${f.ruleId}\0${file}\0${f.preview}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      findings.push({ ...f, commit: commit.slice(0, 7), line: undefined });
+    }
+  };
+
+  const MARKER = /^\u0000repo-ready-commit ([0-9a-f]{7,64})$/;
+  let commit = null;
+  let file = null;
+  let added = [];
+  for (const line of log.split('\n')) {
+    const m = line.match(MARKER);
+    if (m) {
+      flush(commit, file, added);
+      commits++;
+      commit = m[1];
+      file = null;
+      added = [];
+    } else if (line.startsWith('diff --git ')) {
+      flush(commit, file, added);
+      file = null;
+      added = [];
+    } else if (line.startsWith('+++ ')) {
+      file = line === '+++ /dev/null' ? null : line.slice(4).replace(/^b\//, '').replace(/^"|"$/g, '');
+    } else if (line.startsWith('+') && file && !line.includes('\u0000')) {
+      added.push(line.slice(1));
+    }
+  }
+  flush(commit, file, added);
+  ctx.state.historyCommits = commits;
+  ctx.state.historyLimited = commits >= maxCommits;
+  try {
+    ctx.state.historyShallow = execFileSync('git', ['rev-parse', '--is-shallow-repository'], { cwd: ctx.root, stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString().trim() === 'true';
+  } catch {
+    ctx.state.historyShallow = false;
+  }
   return findings;
 }
 
