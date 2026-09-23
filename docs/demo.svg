@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1033" height="1128" viewBox="0 0 1033 1128" role="img" aria-label="repo-ready terminal demo">
+  <rect width="1033" height="1128" rx="10" fill="#0d1117"/>
+  <circle cx="22" cy="20" r="6" fill="#ff5f56"/><circle cx="42" cy="20" r="6" fill="#ffbd2e"/><circle cx="62" cy="20" r="6" fill="#27c93f"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13.5" fill="#e6edf3">
+  <text x="20" y="56" xml:space="preserve"><tspan fill="#3fb950">$</tspan> npx repo-ready</text>
+  <text x="20" y="75" xml:space="preserve"><tspan font-weight="bold">repo-ready</tspan> <tspan fill="#8b949e">~/my-cool-lib</tspan></text>
+  <text x="20" y="94" xml:space="preserve"></text>
+  <text x="20" y="113" xml:space="preserve"><tspan font-weight="bold">Legal</tspan></text>
+  <text x="20" y="132" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> License file <tspan fill="#8b949e">—</tspan> No LICENSE file found.</text>
+  <text x="20" y="151" xml:space="preserve"></text>
+  <text x="20" y="170" xml:space="preserve"><tspan font-weight="bold">Documentation</tspan></text>
+  <text x="20" y="189" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> README <tspan fill="#8b949e">—</tspan> README.md is nearly empty (8 words).</text>
+  <text x="20" y="208" xml:space="preserve">      <tspan fill="#8b949e">Explain what the project does, how to install it and how to use it.</tspan></text>
+  <text x="20" y="227" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> README covers install, usage, license, contributing <tspan fill="#8b949e">—</tspan> Missing section(s): installation, usage, license, contributing.</text>
+  <text x="20" y="246" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> README has a code example <tspan fill="#8b949e">—</tspan> No code block found.</text>
+  <text x="20" y="265" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> README relative links resolve <tspan fill="#8b949e">—</tspan> 1 broken link(s).</text>
+  <text x="20" y="284" xml:space="preserve">      <tspan fill="#8b949e">docs/usage.md</tspan></text>
+  <text x="20" y="303" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> Changelog <tspan fill="#8b949e">—</tspan> No CHANGELOG found.</text>
+  <text x="20" y="322" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Package metadata <tspan fill="#8b949e">—</tspan> package.json is missing: description, repository, keywords.</text>
+  <text x="20" y="341" xml:space="preserve"></text>
+  <text x="20" y="360" xml:space="preserve"><tspan font-weight="bold">Community</tspan></text>
+  <text x="20" y="379" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Contributing guide <tspan fill="#8b949e">—</tspan> No CONTRIBUTING.md found.</text>
+  <text x="20" y="398" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Code of conduct <tspan fill="#8b949e">—</tspan> No CODE_OF_CONDUCT.md found.</text>
+  <text x="20" y="417" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> Issue templates <tspan fill="#8b949e">—</tspan> No issue templates found.</text>
+  <text x="20" y="436" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> Pull request template <tspan fill="#8b949e">—</tspan> No pull request template found.</text>
+  <text x="20" y="455" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> AGENTS.md for AI coding agents <tspan fill="#8b949e">—</tspan> No AGENTS.md found.</text>
+  <text x="20" y="474" xml:space="preserve"></text>
+  <text x="20" y="493" xml:space="preserve"><tspan font-weight="bold">Security</tspan></text>
+  <text x="20" y="512" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Security policy <tspan fill="#8b949e">—</tspan> No SECURITY.md found.</text>
+  <text x="20" y="531" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> No leaked secrets <tspan fill="#8b949e">—</tspan> 1 potential secret(s) found.</text>
+  <text x="20" y="550" xml:space="preserve">      <tspan fill="#8b949e">src/index.js:1 GitHub token (ghp_x7…****)</tspan></text>
+  <text x="20" y="569" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> No committed .env secrets <tspan fill="#8b949e">—</tspan> 1 .env file(s) with credential-like values tracked.</text>
+  <text x="20" y="588" xml:space="preserve">      <tspan fill="#8b949e">.env</tspan></text>
+  <text x="20" y="607" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> Automated dependency updates <tspan fill="#8b949e">—</tspan> Neither Dependabot nor Renovate is configured.</text>
+  <text x="20" y="626" xml:space="preserve"></text>
+  <text x="20" y="645" xml:space="preserve"><tspan font-weight="bold">Quality</tspan></text>
+  <text x="20" y="664" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Continuous integration <tspan fill="#8b949e">—</tspan> No CI configuration found.</text>
+  <text x="20" y="683" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Tests <tspan fill="#8b949e">—</tspan> No test files found.</text>
+  <text x="20" y="702" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> .gitignore <tspan fill="#8b949e">—</tspan> No .gitignore found.</text>
+  <text x="20" y="721" xml:space="preserve">  <tspan fill="#3fb950">✔</tspan> No large files <tspan fill="#8b949e">—</tspan> <tspan fill="#8b949e">No files over 5 MB.</tspan></text>
+  <text x="20" y="740" xml:space="preserve"></text>
+  <text x="20" y="759" xml:space="preserve"><tspan font-weight="bold">Score:</tspan> <tspan fill="#ff7b72" font-weight="bold">2/100</tspan> <tspan fill="#ff7b72">(F)</tspan>  <tspan fill="#8b949e">1 passed, 19 failed, 1 skipped</tspan></text>
+  <text x="20" y="778" xml:space="preserve">Run <tspan font-weight="bold">repo-ready --fix</tspan> to auto-fix 11 of these.</text>
+  <text x="20" y="797" xml:space="preserve"></text>
+  <text x="20" y="816" xml:space="preserve"><tspan fill="#3fb950">$</tspan> npx repo-ready --fix</text>
+  <text x="20" y="835" xml:space="preserve"><tspan fill="#8b949e">  ...</tspan></text>
+  <text x="20" y="854" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> LICENSE</text>
+  <text x="20" y="873" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> CONTRIBUTING.md</text>
+  <text x="20" y="892" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> CODE_OF_CONDUCT.md</text>
+  <text x="20" y="911" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> SECURITY.md</text>
+  <text x="20" y="930" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/ISSUE_TEMPLATE/bug_report.yml</text>
+  <text x="20" y="949" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/ISSUE_TEMPLATE/feature_request.yml</text>
+  <text x="20" y="968" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/ISSUE_TEMPLATE/config.yml</text>
+  <text x="20" y="987" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/PULL_REQUEST_TEMPLATE.md</text>
+  <text x="20" y="1006" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/workflows/ci.yml</text>
+  <text x="20" y="1025" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> CHANGELOG.md</text>
+  <text x="20" y="1044" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .gitignore</text>
+  <text x="20" y="1063" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> .github/dependabot.yml</text>
+  <text x="20" y="1082" xml:space="preserve">  <tspan fill="#3fb950">+</tspan> AGENTS.md</text>
+  <text x="20" y="1101" xml:space="preserve"><tspan font-weight="bold">Score:</tspan> <tspan fill="#ff7b72" font-weight="bold">50/100</tspan> <tspan fill="#ff7b72">(D)</tspan>  <tspan fill="#8b949e">13 passed, 8 failed, 0 skipped</tspan></text>
+  </g>
+</svg>
