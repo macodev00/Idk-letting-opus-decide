@@ -29,7 +29,7 @@
   <text x="20" y="512" xml:space="preserve">  <tspan fill="#d29922">▲</tspan> Security policy <tspan fill="#8b949e">—</tspan> No SECURITY.md found.</text>
   <text x="20" y="531" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> No leaked secrets <tspan fill="#8b949e">—</tspan> 1 potential secret(s) found.</text>
   <text x="20" y="550" xml:space="preserve">      <tspan fill="#8b949e">src/index.js:1 GitHub token (ghp_x7…****)</tspan></text>
-  <text x="20" y="569" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> No committed .env files <tspan fill="#8b949e">—</tspan> 1 .env file(s) tracked.</text>
+  <text x="20" y="569" xml:space="preserve">  <tspan fill="#ff7b72">✖</tspan> No committed .env secrets <tspan fill="#8b949e">—</tspan> 1 .env file(s) with credential-like values tracked.</text>
   <text x="20" y="588" xml:space="preserve">      <tspan fill="#8b949e">.env</tspan></text>
   <text x="20" y="607" xml:space="preserve">  <tspan fill="#39c5cf">○</tspan> Automated dependency updates <tspan fill="#8b949e">—</tspan> Neither Dependabot nor Renovate is configured.</text>
   <text x="20" y="626" xml:space="preserve"></text>

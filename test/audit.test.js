@@ -126,11 +126,28 @@ test('readme-sections lists what is missing', () => {
   assert.match(r.message, /installation, license, contributing/);
 });
 
-test('detects committed .env files but allows examples', () => {
-  const dir = makeRepo({ '.env': 'A=1', 'app/.env.production': 'A=1', '.env.example': 'A=' });
+test('detects committed .env files with credentials but allows examples', () => {
+  const dir = makeRepo({
+    '.env': 'API_KEY=abc123def456',
+    'app/.env.production': 'export DB_PASSWORD="s3cr3t-value"',
+    '.env.example': 'API_KEY=abc123def456',
+    'web/.env': '# settings\nTERMINAL_WIDTH=3000\nSECRET_KEY=\n',
+  });
   const r = result(audit(dir), 'env-files');
   assert.equal(r.status, 'fail');
   assert.deepEqual(r.details.sort(), ['.env', 'app/.env.production']);
+});
+
+test('harmless .env files pass', () => {
+  const dir = makeRepo({ '.env': 'TERMINAL_WIDTH=3000\nNODE_ENV=development\n' });
+  const r = result(audit(dir, { only: ['env-files'] }), 'env-files');
+  assert.equal(r.status, 'pass');
+  assert.match(r.message, /none with credential-like values/);
+});
+
+test('readme-sections accepts install commands and license mentions in the body', () => {
+  const dir = makeRepo({ 'README.md': `# x\n\n${'word '.repeat(60)}\n\n\`\`\`sh\nnpm install x\n\`\`\`\n\n\`\`\`js\nx()\n\`\`\`\n\nMIT licensed. Contributions welcome!\n` });
+  assert.equal(result(audit(dir, { only: ['readme-sections'] }), 'readme-sections').status, 'pass');
 });
 
 test('recognizes MIT-LICENSE and other license file names', () => {

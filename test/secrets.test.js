@@ -11,7 +11,8 @@ const fake = {
   stripe: 'sk_' + 'live_' + 'a1B2c3D4e5F6g7H8i9J0k1L2',
   google: 'AIza' + 'Sy'.padEnd(35, 'Q'),
   slack: 'xox' + 'b-1234567890-abcdefghij',
-  key: '-----BEGIN ' + 'RSA PRIVATE KEY-----',
+  key: '-----BEGIN ' + 'RSA PRIVATE KEY-----\\n' + 'MIIEow'.repeat(8),
+  pem: '-----BEGIN ' + 'EC PRIVATE KEY-----\n' + 'MHcCAQ'.repeat(10) + '\n-----END EC PRIVATE KEY-----',
   db: 'postgres://admin:' + 'hunter2hunter2' + '@db.internal:5432/app',
 };
 
@@ -52,7 +53,7 @@ test('reports line numbers', () => {
 });
 
 test('audit fails on leaked secrets and respects ignorePaths', () => {
-  const dir = makeRepo({ 'src/config.js': `export const token = "${fake.github}";\n`, 'deploy/key.pem': `${fake.key}\n` });
+  const dir = makeRepo({ 'src/config.js': `export const token = "${fake.github}";\n`, 'deploy/key.pem': `${fake.pem}\n` });
   let report = audit(dir, { only: ['secrets'] });
   const r = result(report, 'secrets');
   assert.equal(r.status, 'fail');
@@ -64,11 +65,20 @@ test('audit fails on leaked secrets and respects ignorePaths', () => {
 });
 
 test('test and fixture directories are skipped unless includeTests is set', () => {
-  const dir = makeRepo({ 'tests/certs/server.key': `${fake.key}\n`, 'src/__fixtures__/cfg.js': fake.github });
+  const dir = makeRepo({ 'tests/certs/server.key': `${fake.pem}\n`, 'crypto/tls_test.go': 'k := `' + fake.pem + '`', 'src/__fixtures__/cfg.js': fake.github });
   assert.equal(result(audit(dir, { only: ['secrets'] }), 'secrets').status, 'pass');
   const r = result(audit(dir, { only: ['secrets'], config: { secrets: { includeTests: true } } }), 'secrets');
   assert.equal(r.status, 'fail');
-  assert.equal(r.details.length, 2);
+  assert.equal(r.details.length, 3);
+});
+
+test('private key headers without key material are ignored', () => {
+  const header = '-----BEGIN ' + 'PRIVATE KEY-----';
+  assert.deepEqual(scanText(`/// Starts with ${header}`), []);
+  assert.deepEqual(scanText(`const key = "${header}\\n...\\n-----END PRIVATE KEY-----";`), []);
+  assert.deepEqual(scanText(`const re = /${header}[\\s\\S]+?-----END/;`), []);
+  assert.equal(scanText(fake.pem).length, 1);
+  assert.equal(scanText(`const k = \`${fake.pem}\`;`).length, 1);
 });
 
 test('database URLs with local hosts or default credentials are not secrets', () => {

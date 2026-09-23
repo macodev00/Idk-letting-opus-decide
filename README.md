@@ -153,8 +153,8 @@ jobs:
 | `tests` | warning | Test files in any common layout, including inline Rust tests. |
 | `changelog` | info | CHANGELOG/HISTORY/NEWS, or automated release notes (changesets, release-please, semantic-release, git-cliff). |
 | `gitignore` | warning | A .gitignore, and no committed `node_modules`, `__pycache__`, `.DS_Store`, etc. |
-| `secrets` | error | 18 kinds of credentials in tracked files, with redacted previews. |
-| `env-files` | error | No committed `.env` files (`.env.example` is fine). |
+| `secrets` | error | 18 kinds of credentials in tracked files, with redacted previews. Private keys only count when real key material follows the PEM header. |
+| `env-files` | error | No committed `.env` files containing credential-like values (`.env.example` is fine). |
 | `large-files` | info | No files over 5 MB outside Git LFS. |
 | `package-metadata` | warning | Description, repository, keywords and license in your package manifest. |
 | `dependency-updates` | info | Dependabot or Renovate. |

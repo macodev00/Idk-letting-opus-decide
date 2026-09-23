@@ -16,6 +16,8 @@ export function findLicenseFile(ctx) {
   ) || ctx.files.find((f) => !f.includes('/') && /^((un)?licen[cs]e|copying)([._-]|$)|[._-]licen[cs]e(\.(md|txt|rst))?$/i.test(f)) || null;
 }
 
+const SENSITIVE_ENV = /^\s*(?:export\s+)?[A-Z0-9_]*(KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD|PASS|AUTH|CREDENTIALS?|PRIVATE|DSN|DATABASE_URL|CONNECTION_STRING)[A-Z0-9_]*\s*=\s*["']?[^\s"'#]{6,}/im;
+
 const FIXTURE_PATH = /(^|\/)(tests?|__tests__|spec|specs|fixtures?|__fixtures__|testdata|examples?|playground|samples?)\//i;
 
 export function findReadme(ctx) {
@@ -114,7 +116,14 @@ export const checks = [
       if (!file) return skip('No README.');
       const text = ctx.read(file) || '';
       const headings = markdownHeadings(text);
-      const missing = README_SECTIONS.filter(({ patterns }) => !headings.some((h) => patterns.some((p) => p.test(h))))
+      const codeBlocks = (text.match(/^\s*```/gm) || []).length / 2;
+      const inBody = {
+        installation: /\b(npm|pnpm|yarn|bun) (i|install|add)\b|\bpip install\b|\bcargo (add|install)\b|\bgo (get|install)\b|\bbrew install\b|\bgem install\b|\bcomposer require\b|\bdotnet add\b|\bdocker (run|pull)\b|\bnpx\b|\buvx?\b/i,
+        usage: codeBlocks >= 2 ? /./ : null,
+        license: /licen[cs]e/i,
+        contributing: /contribut/i,
+      };
+      const missing = README_SECTIONS.filter(({ key, patterns }) => !headings.some((h) => patterns.some((p) => p.test(h))) && !inBody[key]?.test(text))
         .map((s) => s.key);
       if (missing.length) return fail(`Missing section(s): ${missing.join(', ')}.`);
       return pass('All key sections present.');
@@ -302,13 +311,15 @@ export const checks = [
   },
   {
     id: 'env-files',
-    title: 'No committed .env files',
+    title: 'No committed .env secrets',
     category: 'security',
     severity: 'error',
     description: '.env files usually contain credentials. Commit a .env.example instead.',
     run(ctx) {
       const envs = ctx.files.filter((f) => /(^|\/)\.env(\.[^/]*)?$/i.test(f) && !/\.(example|sample|template|dist|defaults?)$/i.test(f) && !FIXTURE_PATH.test(f));
-      if (envs.length) return fail(`${envs.length} .env file(s) tracked.`, { details: envs.slice(0, 10) });
+      const risky = envs.filter((f) => SENSITIVE_ENV.test(ctx.read(f) || ''));
+      if (risky.length) return fail(`${risky.length} .env file(s) with credential-like values tracked.`, { details: risky.slice(0, 10) });
+      if (envs.length) return pass(`${envs.length} .env file(s) tracked, none with credential-like values.`);
       return pass('None found.');
     },
   },

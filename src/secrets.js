@@ -1,8 +1,28 @@
+// A PEM header only counts when real base64 key material follows it, either on the next lines
+// or after an escaped "\n" on the same line. Headers in docs, regexes and error messages are ignored.
+function hasKeyMaterial(lines, i, offset) {
+  const BASE64 = /^[A-Za-z0-9+/]{40,}={0,2}$/;
+  const rest = lines[i].slice(offset);
+  const escaped = rest.match(/^(?:\\r)?\\n([A-Za-z0-9+/]{40,})/);
+  if (escaped) return true;
+  for (let j = i + 1; j < Math.min(lines.length, i + 6); j++) {
+    const line = lines[j].trim().replace(/^["'`]|["'`,;+\s\\n]*$/g, '');
+    if (!line || /^(Proc-Type|DEK-Info|Comment|Version):/i.test(line)) continue;
+    return BASE64.test(line);
+  }
+  return false;
+}
+
 const DEFAULT_PASSWORDS = /^(postgres|root|guest|admin|mysql|mariadb|redis|rabbitmq|sa|mongo|mongodb|user|pass|bar|foo|secret|password|toor|1234\d*|123456\d*|qwerty)$/i;
 const LOCAL_HOST = /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|\[::1\]|host\.docker\.internal|[^.]+\.local|[^.]+\.localhost)$/i;
 
 const RULES = [
-  { id: 'private-key', name: 'Private key', re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY(?: BLOCK)?-----/ },
+  {
+    id: 'private-key',
+    name: 'Private key',
+    re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY(?: BLOCK)?-----/,
+    validate: (m, lines, i) => hasKeyMaterial(lines, i, m.index + m[0].length),
+  },
   { id: 'aws-access-key', name: 'AWS access key ID', re: /\b(?:AKIA|ASIA|ABIA|ACCA)[0-9A-Z]{16}\b/ },
   { id: 'github-token', name: 'GitHub token', re: /\bgh[pousr]_[A-Za-z0-9]{36,255}\b/ },
   { id: 'github-pat', name: 'GitHub fine-grained token', re: /\bgithub_pat_[A-Za-z0-9_]{80,}\b/ },
@@ -49,7 +69,7 @@ export function scanText(text, file = '') {
     for (const rule of RULES) {
       const m = line.match(rule.re);
       if (!m) continue;
-      if (rule.validate && !rule.validate(m)) continue;
+      if (rule.validate && !rule.validate(m, lines, i)) continue;
       if (rule.id !== 'private-key' && PLACEHOLDER.test(m[0])) continue;
       findings.push({ file, line: i + 1, rule: rule.name, ruleId: rule.id, preview: rule.id === 'private-key' ? '' : redact(m[0]) });
     }
@@ -57,7 +77,7 @@ export function scanText(text, file = '') {
   return findings;
 }
 
-export const TEST_PATH = /(^|\/)(tests?|__tests__|__fixtures__|spec|specs|fixtures?|testdata|test-data|__mocks__)\//i;
+export const TEST_PATH = /(^|\/)(tests?|__tests__|__fixtures__|spec|specs|fixtures?|testdata|test-data|__mocks__)\/|_test\.[a-z]+$|[._-](test|spec)\.[a-z]+$|(^|\/)test_[^/]+\.py$/i;
 
 export function scanSecrets(ctx) {
   const ignore = (ctx.config.secrets?.ignorePaths || []).map((p) => new RegExp(p));
