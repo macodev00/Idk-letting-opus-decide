@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: node bin/repo-ready.js --min-score 90 --no-color
+
+  action:
+    name: Run the action on this repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - id: repo-ready
+        uses: ./
+        with:
+          min-score: 90
+          sarif-file: repo-ready.sarif
+      - run: echo "Score ${{ steps.repo-ready.outputs.score }} (${{ steps.repo-ready.outputs.grade }})"
+      - uses: github/codeql-action/upload-sarif@v4
+        if: always() && github.event_name == 'push'
+        with:
+          sarif_file: repo-ready.sarif
+          category: repo-ready

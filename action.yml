@@ -1,0 +1,58 @@
+name: repo-ready
+description: Check if your repository is ready for open source — license, README, community files, CI and leaked secrets.
+author: macodev00
+branding:
+  icon: check-circle
+  color: green
+
+inputs:
+  path:
+    description: Directory to audit, relative to the workspace.
+    required: false
+    default: .
+  min-score:
+    description: Fail the step if the score (0-100) is below this value.
+    required: false
+  strict:
+    description: Fail the step if any error-level check fails (missing license, leaked secrets, ...).
+    required: false
+    default: 'false'
+  only:
+    description: Comma-separated list of checks to run.
+    required: false
+  skip:
+    description: Comma-separated list of checks to skip.
+    required: false
+  fix:
+    description: Generate missing files in the workspace (combine with a pull-request action to propose them).
+    required: false
+    default: 'false'
+  license:
+    description: License to create when fix is enabled (MIT, Apache-2.0, ISC, BSD-2-Clause, BSD-3-Clause, MPL-2.0, GPL-3.0, LGPL-3.0, AGPL-3.0, Unlicense).
+    required: false
+  contact:
+    description: Contact email used in generated SECURITY.md and CODE_OF_CONDUCT.md.
+    required: false
+  summary:
+    description: Write a Markdown report to the job summary.
+    required: false
+    default: 'true'
+  sarif-file:
+    description: Also write a SARIF report to this path (upload it with github/codeql-action/upload-sarif).
+    required: false
+
+outputs:
+  score:
+    description: Score from 0 to 100.
+  grade:
+    description: Letter grade (A-F).
+  failed:
+    description: Number of failed checks.
+  fixed:
+    description: Comma-separated list of files created by fix.
+  badge-url:
+    description: shields.io badge URL for the score.
+
+runs:
+  using: node24
+  main: src/action.js

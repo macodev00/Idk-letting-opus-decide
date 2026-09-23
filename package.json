@@ -1,0 +1,50 @@
+{
+  "name": "repo-ready",
+  "version": "1.0.0",
+  "description": "Check if your repository is ready for open source, and fix what's missing. License, README, community files, CI, leaked secrets — one command, zero dependencies.",
+  "type": "module",
+  "bin": {
+    "repo-ready": "bin/repo-ready.js"
+  },
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "action.yml"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "lint": "node scripts/lint.js",
+    "self-check": "node bin/repo-ready.js . --min-score 90"
+  },
+  "keywords": [
+    "open-source",
+    "oss",
+    "repository",
+    "linter",
+    "repolinter",
+    "community-health",
+    "license",
+    "readme",
+    "github-action",
+    "secrets",
+    "cli",
+    "scaffold"
+  ],
+  "author": "macodev00",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/macodev00/Idk-letting-opus-decide.git"
+  },
+  "homepage": "https://github.com/macodev00/Idk-letting-opus-decide#readme",
+  "bugs": {
+    "url": "https://github.com/macodev00/Idk-letting-opus-decide/issues"
+  }
+}
