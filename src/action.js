@@ -30,6 +30,7 @@ export function run(env = process.env, stdout = process.stdout) {
 
   const report = audit(root, {
     fix: bool(input('fix', env)),
+    history: bool(input('history', env)),
     license: input('license', env) || undefined,
     contact: input('contact', env) || undefined,
     only: list(input('only', env)),

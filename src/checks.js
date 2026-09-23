@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { detectLicense, normalizeLicenseId } from './licenses.js';
-import { scanSecrets } from './secrets.js';
+import { scanSecrets, scanHistory } from './secrets.js';
 
 const pass = (message, extra = {}) => ({ status: 'pass', message, ...extra });
 const fail = (message, extra = {}) => ({ status: 'fail', message, ...extra });
@@ -306,6 +306,24 @@ export const checks = [
       if (!findings.length) return pass(`Scanned ${ctx.state.secretsScanned ?? 0} file(s).`);
       return fail(`${findings.length} potential secret(s) found.`, {
         details: findings.slice(0, 25).map((f) => `${f.file}:${f.line} ${f.rule}${f.preview ? ` (${f.preview})` : ''}`),
+      });
+    },
+  },
+  {
+    id: 'secrets-history',
+    title: 'No secrets in git history',
+    category: 'security',
+    severity: 'error',
+    description: 'Deleting a secret in a later commit does not remove it: anyone can read old commits once the repo is public. Rotate the credential, then rewrite history (git filter-repo) if needed.',
+    run(ctx) {
+      if (!ctx.config.secrets?.history) return skip('Not enabled (use --history).');
+      if (!ctx.git) return skip('Not a git repository.');
+      const findings = scanHistory(ctx, { maxCommits: ctx.config.secrets.historyMaxCommits });
+      const shallow = (ctx.state.historyShallow ? ' Shallow clone: fetch full history for a complete scan.' : '')
+        + (ctx.state.historyLimited ? ' Commit limit reached: raise secrets.historyMaxCommits to scan further back.' : '');
+      if (!findings.length) return pass(`Scanned ${ctx.state.historyCommits} commit(s).${shallow}`);
+      return fail(`${findings.length} potential secret(s) in ${ctx.state.historyCommits} commit(s).${shallow}`, {
+        details: findings.slice(0, 25).map((f) => `${f.file} ${f.rule}${f.preview ? ` (${f.preview})` : ''} in commit ${f.commit}`),
       });
     },
   },
