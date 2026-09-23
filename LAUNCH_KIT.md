@@ -71,7 +71,8 @@ It's a single zero-dependency Node CLI (also a GitHub Action):
   npx repo-ready --fix    # generate what's missing
 
 --fix writes files tailored to the project (it knows npm/pnpm/yarn/bun, Python, Go, Rust, Java, Ruby,
-PHP, .NET), bundles 10 licenses, and never overwrites anything. The secret scanner covers 18 token
+PHP, .NET), bundles 10 licenses, and never overwrites anything. `--history` also scans every past commit,
+because a key you deleted three commits ago is still public the moment you flip the repo. The secret scanner covers 18 token
 types and is tuned for low false positives: I ran it against rails, vite, vscode, deno, go, react and
 ~10 others and fixed every false alarm I found (PEM headers in docs, localhost DB URLs, test certs…).
 
@@ -94,11 +95,12 @@ Body:
 Every time I open-sourced a project I'd forget something: a CONTRIBUTING guide, a SECURITY policy,
 issue templates, or worse, a committed .env. So I built repo-ready:
 
-- `npx repo-ready` gives a score out of 100 with 21 checks
+- `npx repo-ready` gives a score out of 100 with 22 checks
 - `npx repo-ready --fix` generates LICENSE (10 licenses), CONTRIBUTING, CODE_OF_CONDUCT, SECURITY,
   issue forms, PR template, CI workflow, Dependabot config, .gitignore and AGENTS.md, tailored to your
   language. It never overwrites existing files.
-- Scans for 18 kinds of leaked credentials
+- Scans for 18 kinds of leaked credentials, and `--history` checks every past commit too (deleting a key
+  in a later commit doesn't un-leak it once the repo goes public)
 - Zero dependencies, MIT, also available as a GitHub Action
 
 Out of curiosity I ran it on 16 well-known projects: React scored 100, Rails 98, uv 95. The most commonly
@@ -128,7 +130,7 @@ cover_image: <upload docs/social-preview.png>
 ---
 
 What does a "healthy" open-source repository look like? GitHub has a Community Standards checklist, but
-it only lives in the browser. So I wrote [repo-ready](<link>), a small CLI that checks 21 things people
+it only lives in the browser. So I wrote [repo-ready](<link>), a small CLI that checks 22 things people
 expect from an open-source project and scores them out of 100, then pointed it at some of the most
 popular projects on GitHub.
 
@@ -190,13 +192,16 @@ npx repo-ready --fix
 
 License, README, CONTRIBUTING, SECURITY, issue templates, CI, leaked secrets. Zero dependencies. 🧵
 
-2/ --fix generates files tailored to your stack (npm/pnpm/yarn/bun, Python, Go, Rust, Java, Ruby, PHP,
+2/ Going from private to public? `npx repo-ready --history` scans every past commit for API keys. Deleting
+a secret in a later commit doesn't remove it from history.
+
+3/ --fix generates files tailored to your stack (npm/pnpm/yarn/bun, Python, Go, Rust, Java, Ruby, PHP,
 .NET) and never overwrites anything.
 
-3/ I graded 16 famous repos. React: 100. Rails: 98. uv: 95.
+4/ I graded 16 famous repos. React: 100. Rails: 98. uv: 95.
 Most commonly missing file? CODE_OF_CONDUCT.md (11/16).
 
-4/ It's also a GitHub Action with job summaries, annotations and SARIF for the Security tab.
+5/ It's also a GitHub Action with job summaries, annotations and SARIF for the Security tab.
 MIT licensed: <link>
 ```
 Attach `docs/social-preview.png` (or a screen recording of `--fix`) to the first post. Posts with media get far more reach.
@@ -205,7 +210,7 @@ Attach `docs/social-preview.png` (or a screen recording of `--fix`) to the first
 
 - Name: repo-ready
 - Tagline: `Get your GitHub repo ready for open source in one command`
-- Description: `repo-ready checks 21 things every open-source project needs (license, README, contributing and security policies, CI, and leaked secrets), scores your repo out of 100, and generates the missing files. Free, MIT, zero dependencies, also a GitHub Action.`
+- Description: `repo-ready checks 22 things every open-source project needs (license, README, contributing and security policies, CI, and leaked secrets), scores your repo out of 100, and generates the missing files. Free, MIT, zero dependencies, also a GitHub Action.`
 - Topics: Developer Tools, Open Source, GitHub
 
 ---
